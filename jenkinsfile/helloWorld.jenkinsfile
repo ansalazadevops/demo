@@ -17,7 +17,7 @@ pipeline {
         // Automatically abort the build if it runs longer than 3 minutes
         timeout(time: 3, unit: 'MINUTES')
         // Keep logs clean by prepending timestamps
-        timestamps()
+        // timestamps()
         // Discard old build logs to save disk space (keep last 10 builds)
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
