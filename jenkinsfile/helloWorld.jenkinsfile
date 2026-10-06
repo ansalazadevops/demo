@@ -7,7 +7,7 @@ pipeline {
     // Define global environment variables available across all stages
     environment {
         APP_NAME    = 'helloWorld'
-        SCRIPT_PATH = 'bash/hello-World.sh'
+        SCRIPT_PATH = '/bash/hello-World.sh'
         DEPLOY_ENV  = 'dev'
         // Secure credentials loaded from Jenkins Credential Manager
         // AUTH_TOKEN = credentials('ansalazadevops-auth-token')
