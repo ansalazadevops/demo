@@ -1,0 +1,84 @@
+pipeline {
+    agent any
+
+    // execute every minnute
+    triggers { pollSCM('* * * * *') }
+
+    // Define global environment variables available across all stages
+    environment {
+        APP_NAME    = 'helloWorld'
+        SCRIPT_PATH = 'bash/hello-World.sh'
+        DEPLOY_ENV  = 'dev'
+        // Secure credentials loaded from Jenkins Credential Manager
+        // AUTH_TOKEN = credentials('ansalazadevops-auth-token')
+    }
+
+    options {
+        // Automatically abort the build if it runs longer than 3 minutes
+        timeout(time: 3, unit: 'MINUTES')
+        // Keep logs clean by prepending timestamps
+        timestamps()
+        // Discard old build logs to save disk space (keep last 10 builds)
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+        stage('Checkout & Prepare') {
+            steps {
+                echo "Preparing workspace for ${env.APP_NAME} in environment: ${env.DEPLOY_ENV}"
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[credentialsId: 'ansalazadevops-auth-token',
+                    url: 'https://github.com/ansalazadevops/demo.git']]
+                ])
+                // Make sure the script is executable
+                sh 'chmod +x ./${SCRIPT_PATH}'
+            }
+        }
+
+        stage('Execute Script with Error Catching') {
+            steps {
+                script {
+                    try {
+                        echo "Running system version check..."
+                        // Execute the bash script and capture output
+                        sh "./${SCRIPT_PATH}"
+                    } catch (Exception e) {
+                        echo "Execution failed in ${stageName}: ${e.getMessage()}"
+                        // Rethrow exception to mark stage/pipeline as failed after custom handling
+                        throw e
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            // Only run deployment if running on the 'main' or 'master' branch
+            when {
+                branch 'main'
+            }
+            steps {
+                echo "Deploying ${env.APP_NAME} (Build #${env.BUILD_NUMBER}) to ${env.DEPLOY_ENV}..."
+                // Add deployment commands here
+            }
+        }
+    }
+
+    // Global pipeline hooks for status handling and cleanup
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs(deleteDirs: true, notFailBuild: true)
+        }
+        success {
+            echo "SUCCESS: Pipeline #${env.BUILD_NUMBER} completed successfully for ${env.APP_NAME}."
+        }
+        failure {
+            echo "FAILURE: Pipeline #${env.BUILD_NUMBER} failed! Check console output for details."
+            // Example: sendSlackNotification(channel: '#devops-alerts', color: 'danger', message: "Job ${env.JOB_NAME} #${env.BUILD_NUMBER} failed.")
+        }
+        unstable {
+            echo "WARNING: Pipeline completed with unstable results (e.g., failing tests)."
+        }
+    }
+}
