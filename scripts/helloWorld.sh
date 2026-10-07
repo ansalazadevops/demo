@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 echo "Hello World!"
-echo "Adding one lone from asgcloudops user"
+echo "Adding one line by $USER user from $(hostname -s)"
