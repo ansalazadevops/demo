@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 echo "Hello World!"
-echo "Adding one line by $USER user from $(hostname -s)"
+echo "Adding one line to the `/scripts/helloWorld.sh` script by `asgcloudops` user on $(localhost -s)"
