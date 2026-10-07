@@ -7,17 +7,15 @@ pipeline {
     // Define global environment variables available across all stages
     environment {
         APP_NAME    = 'helloWorld'
-        SCRIPT_PATH = '/bash/hello-World.sh'
+        SCRIPT_PATH = 'scripts/hello-World.sh'
         DEPLOY_ENV  = 'dev'
         // Secure credentials loaded from Jenkins Credential Manager
-        // AUTH_TOKEN = credentials('ansalazadevops-auth-token')
+        AUTH_TOKEN = credentials('ansalazadevops-auth-token')
     }
 
     options {
         // Automatically abort the build if it runs longer than 3 minutes
         timeout(time: 3, unit: 'MINUTES')
-        // Keep logs clean by prepending timestamps
-        // timestamps()
         // Discard old build logs to save disk space (keep last 10 builds)
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
@@ -28,7 +26,7 @@ pipeline {
                 echo "Preparing workspace for ${env.APP_NAME} in environment: ${env.DEPLOY_ENV}"
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/main']],
-                    userRemoteConfigs: [[credentialsId: 'ansalazadevops-auth-token',
+                    userRemoteConfigs: [[credentialsId: '${AUTH_TOKEN}',
                     url: 'https://github.com/ansalazadevops/demo.git']]
                 ])
                 // Make sure the script is executable
