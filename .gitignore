@@ -1,2 +1,5 @@
 _draft/
+.ssh/
 backup/
+jenkinsfile/
+vm/
