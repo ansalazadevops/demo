@@ -86,3 +86,15 @@ git checkout main
 git branch -D ${PR-BRANCH}
 git push origin ${PR-BRANCH} --delete
 ```
+
+### Synch the latest changes onto the forked repository.
+
+1. In GitHub go to the **gitops-demo** repository
+
+2. Click on the **Sync Fork** Button.
+
+3. Update the changes locally.
+
+```bash
+git pull origin main
+```
